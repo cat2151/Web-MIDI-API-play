@@ -13,11 +13,11 @@ Web MIDI APIで小物を作って遊んでみる
 * [DEMO 2 : MIDI INモニタリング + MIDI OUTへTHRU](http://cat2151.github.io/Web-MIDI-API-play/index02.html)
 
 # [注意]
-* [Chrome]
+* [Chrome]  
 Chromeでのみ動作確認しています。  
 FirefoxとIEは、Web MIDI APIの実装が遅れているため動きません  
 （そのうち実装されると思っています）。  
 
-* [ローカル]
+* [ローカル]  
 ローカルで実行する場合は、Chrome Dev Editorでのみ動作確認しています。  
 ローカルにindex.htmlを置いてそれを単純にChromeで実行しても、動かない場合があります。  
