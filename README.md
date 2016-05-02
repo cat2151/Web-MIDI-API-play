@@ -8,9 +8,9 @@ Web MIDI APIで小物を作って遊んでみる
  * PCに、USB-MIDI ケーブルを接続している
  * loopMIDIで仮想MIDIデバイスを用意してある
 
-* [DEMO 1 : Web MIDI API対応ブラウザかチェック + MIDI楽器リスト表示](http://cat2151.github.io/Web-MIDI-API-play/index01_WebMIDIAPI対応検査とデバイス列挙.html)
+* [DEMO 1 : Web MIDI API対応ブラウザかチェック + MIDI楽器リスト表示](http://cat2151.github.io/Web-MIDI-API-play/index01.html)
 
-* [DEMO 2 : MIDI INモニタリング + MIDI OUTへTHRU](http://cat2151.github.io/Web-MIDI-API-play/index02_ミニマムinOut_仮想MIDI装置なし.html)
+* [DEMO 2 : MIDI INモニタリング + MIDI OUTへTHRU](http://cat2151.github.io/Web-MIDI-API-play/index02.html)
 
 # [注意]
 * [Chrome]
