@@ -1,0 +1,48 @@
+<html>
+  <head><meta charset="UTF-8"></head>
+  <body>
+    <h3 id="h3"></h3>
+    <span id="midi-input"></span><br><br><br>
+    <div id="msg" style="margin:30px;"></div>
+
+    <script type="text/javascript">
+// [説明] MIDI INの列挙を行う最小限のソース。
+// [用途] ブラウザが認識するMIDI装置の把握と、それを行うプログラムについての学習。また、ユーザの環境構築の手引き。
+// [元ソース] https://github.com/ryoyakawai/x-webmidi/blob/gh-pages/src/hx_webmidi_01.html
+// [参考記事] https://html5experts.jp/ryoyakawai/16787/
+    var msgTitle = "お使いのブラウザは、以下のMIDI inputを認識しています";
+    var msgNg = "お使いのブラウザはWeb MIDI APIに対応していません。\r取り急ぎ、Chromeで同じページを開いてみてください。";
+    var msgNoDevice = "お使いのブラウザはWeb MIDI APIに対応していますが、\nMIDI Inputデバイスが1つも検出されませんでした。\n\nUSBで接続できるMIDI楽器や、\nUSB-MIDIケーブルや、\nloopMIDIによる仮想MIDIデバイスを、\n1つ以上ご用意ください。\n\nまた、用意したデバイスが検出されなかった場合は、\nページのリロードと、\nChrome再起動をお試しください。\nChrome再起動の際は、Chromeとタスクトレイ上のChromeとChrome Dev Editorを全て閉じてから再起動をしてください。\nloopMIDIのportを2つ用意したのに1つしか検出されなかった場合も、リロードをお試しください。";
+    var inputs = "";
+    var inputCtr = 0;
+    var rMA = navigator.requestMIDIAccess;
+    if (rMA === undefined) {
+          document.querySelector("#midi-input").innerText = msgNg;
+    } else {
+      navigator.requestMIDIAccess({sysex:false}).then(successCallback, errorCallback);
+      // 非同期処理
+      function successCallback(access) {
+          // MIDI Inputデバイスの一覧を作成
+          var inputIterator = access.inputs.values();
+          for (var o = inputIterator.next(); !o.done; o = inputIterator.next()) {
+              inputs += "MIDIデバイスその" + (inputCtr + 1) + ":[";
+              inputs += o.value.name;
+              inputs += "]\n";
+              inputCtr++;
+          }
+          if (!inputCtr) {
+            document.querySelector("#midi-input").innerText = msgNoDevice;
+          } else {
+            document.querySelector("#h3").innerText = msgTitle;
+            // MIDI Inputデバイスの一覧を表示
+            document.querySelector("#midi-input").innerText = inputs;
+          }
+      }
+      function errorCallback(msg) {
+          document.querySelector("#midi-input").innerText = "[ERROR] " + msg;
+      }
+    }
+    </script>
+
+  </body>
+</html>
