@@ -32,27 +32,30 @@
             midi.inputs.push(o.value);
         }
 
-        // MIDI Outputデバイスのリスト表示と選択時の処理
+        // MIDI Outputデバイスのリスト表示
         var osel=document.querySelector("#midi-output");
         for(var i=0; i<midi.outputs.length; i++) {
             osel.appendChild((new Option(midi.outputs[i]["name"], i)));
         }
+        // 非同期処理（選択時）
         osel.addEventListener("change", function(event){
             outputSelIdx=event.target.value;
         });
 
-        // MIDI Inputデバイスのリスト表示と選択時の処理
+        // MIDI Inputデバイスのリスト表示
         var isel=document.querySelector("#midi-input");
         for(var i=0; i<midi.inputs.length; i++) {
             isel.appendChild(new Option(midi.inputs[i]["name"], i));
         }
+        // 非同期処理（選択時）
         isel.addEventListener("change", function(event){
             if(parseInt(inputSelIdx)>=0) {
-                midi.inputs[inputSelIdx].onmidimessage=null;
+                midi.inputs[inputSelIdx].onmidimessage=null;  // 解除
             }
             inputSelIdx=event.target.value;
-            midi.inputs[event.target.value].onmidimessage=eventOut;
+            midi.inputs[event.target.value].onmidimessage=eventOut; // 登録
         });
+        // 非同期処理（MIDI受信時）
         function eventOut(event) {
             // MIDIメッセージを表示
             for(var i=0, out=[]; i<event.data.length; i++) out.push(("00"+event.data[i].toString(16)).substr(-2));
@@ -60,7 +63,7 @@
             var ex_msg=div_msg.innerHTML.split("<br>");
             while(ex_msg.length>19) ex_msg.pop();
             div_msg.innerHTML=out.join(" ")+"<br>" + ex_msg.join("<br>");
-            
+            // MIDIメッセージを送信
             if(parseInt(outputSelIdx)>=0) {
                 midi.outputs[outputSelIdx].send(event.data);
             }
