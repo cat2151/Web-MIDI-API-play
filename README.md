@@ -13,7 +13,8 @@ Web MIDI APIで小物を作って遊んでみる
 
 * [DEMO 3 : MIDI OUTにNOTE ONとNOTE OFFを送信](http://cat2151.github.io/Web-MIDI-API-play/index03.html)
 
-* [DEMO A-1 : 簡易ランダムアルペエータ](http://cat2151.github.io/Web-MIDI-API-play/randomArpeggiator01.html) [利用方法](http://qiita.com/cat2151/items/507bdb4d78e4ae369d02)
+* [DEMO A-1 : 簡易ランダムアルペエータ](http://cat2151.github.io/Web-MIDI-API-play/randomArpeggiator01.html)  
+ * [利用方法](http://qiita.com/cat2151/items/507bdb4d78e4ae369d02)
 
 # [注意]
 * [Chrome]  
