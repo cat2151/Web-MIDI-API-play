@@ -2,10 +2,10 @@
   <head><meta charset="UTF-8"></head>
   <body>
 
+    <span id="midi-err-msg"></span>
     input: <select id="midi-input"><option>SelectOne</option></select><br><br>
     output: <select id="midi-output"><option>SelectOne</option></select><br>
     <br>
-    （Chrome専用です）
 
     <div id="msg" style="margin:30px;"></div>
 
@@ -17,6 +17,7 @@
     var midi={"inputs":[], "outputs":[]};
     var outputSelIdx=null;
     var inputSelIdx=null;
+    if (!navigator.requestMIDIAccess) { document.querySelector("#midi-err-msg").innerText = "お使いのブラウザはWeb MIDI APIに対応していません。\r取り急ぎ、Chromeで同じページを開いてみてください。\n"; }
     navigator.requestMIDIAccess({sysex:false}).then(successCallback, errorCallback);
     function successCallback(access) {
         // MIDI Outputデバイスの配列を作成

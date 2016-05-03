@@ -1,0 +1,75 @@
+<html>
+  <head><meta charset="UTF-8"></head>
+  <body>
+    <h3 id="h3"></h3>
+    <span><span id="midi-output0"></span><input type="button" value="note on" onclick="sendNoteOn(0)"/><input type="button" value="note off" onclick="sendNoteOff(0)"/><br></span>
+    <span><span id="midi-output1"></span><input type="button" value="note on" onclick="sendNoteOn(1)"/><input type="button" value="note off" onclick="sendNoteOff(1)"/><br></span>
+    <span><span id="midi-output2"></span><input type="button" value="note on" onclick="sendNoteOn(2)"/><input type="button" value="note off" onclick="sendNoteOff(2)"/><br></span>
+    <span><span id="midi-output3"></span><input type="button" value="note on" onclick="sendNoteOn(3)"/><input type="button" value="note off" onclick="sendNoteOff(3)"/><br></span>
+    <span><span id="midi-output4"></span><input type="button" value="note on" onclick="sendNoteOn(4)"/><input type="button" value="note off" onclick="sendNoteOff(4)"/><br></span>
+    <span><span id="midi-output5"></span><input type="button" value="note on" onclick="sendNoteOn(5)"/><input type="button" value="note off" onclick="sendNoteOff(5)"/><br></span>
+    <span><span id="midi-output6"></span><input type="button" value="note on" onclick="sendNoteOn(6)"/><input type="button" value="note off" onclick="sendNoteOff(6)"/><br></span>
+    <span><span id="midi-output7"></span><input type="button" value="note on" onclick="sendNoteOn(7)"/><input type="button" value="note off" onclick="sendNoteOff(7)"/><br></span>
+    <span><span id="midi-output8"></span><input type="button" value="note on" onclick="sendNoteOn(8)"/><input type="button" value="note off" onclick="sendNoteOff(8)"/><br></span>
+    <span><span id="midi-output9"></span><input type="button" value="note on" onclick="sendNoteOn(9)"/><input type="button" value="note off" onclick="sendNoteOff(9)"/><br></span>
+    <span><span id="midi-output10"></span><input type="button" value="note on" onclick="sendNoteOn(10)"/><input type="button" value="note off" onclick="sendNoteOff(10)"/><br></span>
+    <span><span id="midi-output11"></span><input type="button" value="note on" onclick="sendNoteOn(11)"/><input type="button" value="note off" onclick="sendNoteOff(11)"/><br></span>
+    <span><span id="midi-output12"></span><input type="button" value="note on" onclick="sendNoteOn(12)"/><input type="button" value="note off" onclick="sendNoteOff(12)"/><br></span>
+    <span><span id="midi-output13"></span><input type="button" value="note on" onclick="sendNoteOn(13)"/><input type="button" value="note off" onclick="sendNoteOff(13)"/><br></span>
+    <span><span id="midi-output14"></span><input type="button" value="note on" onclick="sendNoteOn(14)"/><input type="button" value="note off" onclick="sendNoteOff(14)"/><br></span>
+    <span><span id="midi-output15"></span><input type="button" value="note on" onclick="sendNoteOn(15)"/><input type="button" value="note off" onclick="sendNoteOff(15)"/><br></span>
+    <div id="msg" style="margin:30px;"></div>
+
+    <script type="text/javascript">
+// [説明] MIDI OUTの列挙とnote on/off送信を行う最小限のソース。
+// [用途] MIDI楽器にnote on/offを送信する方法の理解と、動作確認。
+// [元ソース] https://github.com/ryoyakawai/x-webmidi/blob/gh-pages/src/hx_webmidi_01.html
+// [参考記事] https://html5experts.jp/ryoyakawai/16787/
+    var msgTitle = "おめでとうございます！\nお使いのブラウザは、以下のMIDI outputを認識しています。\nWeb MIDI APIが利用できます。";
+    var msgNg = "お使いのブラウザはWeb MIDI APIに対応していません。\r取り急ぎ、Chromeで同じページを開いてみてください。\n";
+    var msgNoDevice = "お使いのブラウザはWeb MIDI APIに対応していますが、\nMIDI outputデバイスが1つも検出されませんでした。\n\nUSBで接続できるMIDI楽器や、\nUSB-MIDIケーブルや、\nloopMIDIによる仮想MIDIデバイスを、\n1つ以上ご用意ください。\n\nまた、用意したデバイスが検出されなかった場合は、\nページのリロードと、\nChrome再起動をお試しください。\nChrome再起動の際は、Chromeとタスクトレイ上のChromeとChrome Dev Editorを全て閉じてから再起動をしてください。\nloopMIDIのportを2つ用意したのに1つしか検出されなかった場合も、リロードをお試しください。";
+    var outputName = "";
+    var outputCtr = 0;
+    var rMA = navigator.requestMIDIAccess;
+    var midi={"outputs":[]};
+    if (rMA === undefined) {
+        document.querySelector("#midi-output0").innerText = msgNg;
+    } else {
+        navigator.requestMIDIAccess({sysex:false}).then(successCallback, errorCallback);
+        // 非同期処理
+        function successCallback(access) {
+            // MIDI outputデバイスの配列を取得、一覧を表示
+            var outputIterator = access.outputs.values();
+            for (var o = outputIterator.next(); !o.done; o = outputIterator.next()) {
+                // 配列を取得
+                midi.outputs.push(o.value);
+                // 一覧を表示
+                outputName = "MIDIデバイスその" + (outputCtr + 1) + ":[";
+                outputName += o.value.name;
+                outputName += "]";
+                document.querySelector("#midi-output" + outputCtr).innerText = outputName;
+                outputCtr++;
+            }
+            if (!outputCtr) {
+              document.querySelector("#midi-output0").innerText = msgNoDevice;
+            } else {
+              document.querySelector("#h3").innerText = msgTitle;
+            }
+        }
+        function errorCallback(msg) {
+            document.querySelector("#midi-output0").innerText = "[ERROR] " + msg;
+        }
+    }
+    // ノートオンとノートオフの送信
+    function sendNoteOn(id) {
+      midi.outputs[id].send([0x90, 60, 100]);
+    }
+    function sendNoteOff(id) {
+      midi.outputs[id].send([0x80, 60, 100]);
+    }
+    </script>
+
+    <a href="https://github.com/cat2151/Web-MIDI-API-play/">ソースファイル githubリポジトリ</a>
+
+  </body>
+</html>

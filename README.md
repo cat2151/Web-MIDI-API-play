@@ -11,6 +11,8 @@ Web MIDI APIで小物を作って遊んでみる
 
 * [DEMO 2 : MIDI INモニタリング + MIDI OUTへTHRU](http://cat2151.github.io/Web-MIDI-API-play/index02.html)
 
+* [DEMO 3 : MIDI OUTにNOTE ONとNOTE OFFを送信](http://cat2151.github.io/Web-MIDI-API-play/index03.html)
+
 # [注意]
 * [Chrome]  
 Chromeでのみ動作確認しています。  
@@ -18,5 +20,7 @@ FirefoxとIEは、Web MIDI APIの実装が遅れているため動きません
 （そのうち実装されると思っています）。  
 
 * [ローカル]  
-ローカルで実行する場合は、Chrome Dev Editorでのみ動作確認しています。  
+（この注意書きは今は無意味ですが、今後のための備忘です。  
+今はローカルのindex.htmlを単純に実行しても問題ありません）  
+Polymerを使ったものをローカルで実行する場合は、Chrome Dev Editorでのみ動作確認しています。  
 ローカルにindex.htmlを置いてそれを単純にChromeで実行しても、動かない場合があります。  
