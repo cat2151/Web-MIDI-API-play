@@ -5,7 +5,7 @@ Web MIDI APIで小物を作って遊んでみる
 * [前提] 以下のどれかが用意してあること
  * PCに、USBケーブルでMIDI楽器を接続している
  * PCに、USB-MIDI ケーブル経由で、MIDI楽器を接続している
- * PC内で、loopMIDIなど仮想MIDIポートに、DAWなどを接続している
+ * [PC内で、loopMIDIなど仮想MIDIポートに、DAWなどを接続している](https://github.com/tanikawa04/webmidiapi_to_daw_sample/blob/master/virtual_midi_port.md)
 
 * [DEMO 1 : Web MIDI API対応ブラウザかチェック + MIDI楽器リスト表示](http://cat2151.github.io/Web-MIDI-API-play/index01.html)
 
