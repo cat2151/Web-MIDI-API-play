@@ -30,18 +30,10 @@
 
       音符:<br>
       (度数I～VIIを0～6で表記)(1パターン32個を記述する。3パターン目以降も追加可能):<br>
-      <textarea cols="80" rows="4" ng-model="p.ptnDegStr" ng-init="initPtnDegStr()"
-        ng-change="changePtnDegStr()" ng-blur="changePtnDegStr()"
+      <textarea cols="80" rows="20" ng-model="p.ptnStr" ng-init="initPtnStr()"
+        ng-change="changePtnStr()" ng-blur="changePtnStr()"
         placeholder="空欄にすると音が出ません"
       ></textarea><br>
-      休符: <textarea cols="80" rows="4" ng-model="p.ptnRestStr" ng-init="initPtnRestStr()"
-        ng-change="changePtnRestStr()" ng-blur="changePtnRestStr()"
-        placeholder="空欄にすると音が出ません"
-      ></textarea><br>
-      Oct: <textarea cols="80" rows="4" ng-model="p.ptnOctStr" ng-init="initPtnOctStr()"
-        ng-change="changePtnOctStr()" ng-blur="changePtnOctStr()"
-        placeholder="空欄にすると音が出ません"
-      ></textarea>
 
       <div id="msg" style="margin:30px;"> </div><br>
 

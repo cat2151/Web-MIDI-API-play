@@ -7,7 +7,7 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
 // [使用方法] DAWで、使っている曲のスケール（例：レミファソラシド）を和音で演奏し、
 //            ブラウザのMIDI INに入力する。なお、7和音のみ対応している。それ以外の動作は未定義。
 
-  $scope.p = {"bpm":120, "fixMode":0, "chgPtnFreq":4};
+  $scope.p = {"bpm":120, "fixMode":0, "chgPtnFreq":4, "ptnStr":[]};
   var midi = {"inputs":[], "outputs":[]};
   $scope.midi = midi; // 画面に公開
   var inputSelIdx = null;
@@ -72,53 +72,32 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
   // 元シーケンス定義
   var ptns;
   var beats = 32;
-  var ptnDegArr;
-  var ptnRestArr;
-  var ptnOctArr;
-  $scope.p.ptnDegStr;
-  $scope.p.ptnRestStr;
-  $scope.p.ptnOctStr;
-  $scope.initPtnDegStr = function() {
-    $scope.p.ptnDegStr = "[\n" +
-      " [0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4,\n" +
-      "  0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4]\n,\n" +
-      " [0, 0, 4, 4,  3, 3, 6, 6,  6, 2, 3, 3,  0, 0, 4, 4,\n" +
-      "  3, 3, 6, 6,  6, 2, 3, 4,  5, 4, 5, 6,  3, 2, 1, 1]\n" +
+  var ptnArr;
+  $scope.initPtnStr = function() {
+    $scope.p.ptnStr = "[\n" +
+      "{\"deg\":[0, 0, 4, 4,  3, 3, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4,\n" +
+      "        0, 0, 4, 4,  3, 3, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4],\n" +
+      "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
+      "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
+      "\"rest\":[0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 1, 0,  0, 0, 0, 0,\n" +
+      "        0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 1, 0,  0, 0, 0, 0],\"degSft\":0}\n" +
+      ",\n" +
+      "{\"deg\":[0, 0, 4, 4,  3, 3, 6, 6,  6, 2, 3, 3,  0, 0, 4, 4,\n" +
+      "        3, 3, 6, 6,  6, 2, 3, 4,  5, 4, 5, 6,  3, 2, 1, 1],\n" +
+      "\"oct\": [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0,\n" +
+      "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
+      "\"rest\":[0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,\n" +
+      "        0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1],\"degSft\":0}\n" +
     "]";
-    $scope.changePtnDegStr();
+    $scope.changePtnStr();
   }
-  $scope.initPtnRestStr = function() {
-    $scope.p.ptnRestStr = "[\n" +
-      " [0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0,\n" +
-      "  0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0]\n,\n" +
-      " [0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,\n" +
-      "  0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1]\n" +
-    "]";
-    $scope.changePtnRestStr();
-  }
-  $scope.initPtnOctStr = function() {
-    $scope.p.ptnOctStr = "[\n" +
-      " [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
-      "  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0]\n,\n" +
-      " [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0,\n" +
-      "  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0]\n" +
-    "]";
-    $scope.changePtnOctStr();
-  }
-  $scope.changePtnDegStr = function() {
-    ptnDegArr = angular.fromJson($scope.p.ptnDegStr);
-    ptns = ptnDegArr.length;
-  }
-  $scope.changePtnRestStr = function() {
-    ptnRestArr = angular.fromJson($scope.p.ptnRestStr);
-    ptns = ptnRestArr.length;
-  }
-  $scope.changePtnOctStr = function() {
-    ptnOctArr = angular.fromJson($scope.p.ptnOctStr);
-    ptns = ptnOctArr.length;
+  $scope.changePtnStr = function() {
+    ptnArr = angular.fromJson($scope.p.ptnStr);
+    ptns = ptnArr.length;
   }
   var playIdx = 0;
   var playPtnIdx = 0;
+  var sOfSc = 7;  // size of scale
   // 非同期処理（interval）
   function evt_update() {
     if(parseInt(outputSelIdx) < 0) return;  // MIDI OUTが1つもない
@@ -137,13 +116,16 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     }
 
     function play1() {
-      if (ptnRestArr[playPtnIdx][playIdx]) return;  // 休符
+      if (ptnArr[playPtnIdx]['rest'][playIdx]) return;  // 休符
       var ctr = 0;
       var noteNum;
       for (key in notes) {
-        if (ctr == ptnDegArr[playPtnIdx][playIdx]) {
+        var de1 = ptnArr[playPtnIdx]['deg'][playIdx] + ptnArr[playPtnIdx]['degSft'];  // [イメージ] -1 や 0 や 1 や 7。degSftはdegreeShift
+        var deg = ((de1 % sOfSc) + sOfSc) % sOfSc;  // [イメージ] 0～6
+        var octOfs = ptnArr[playPtnIdx]['oct'][playIdx] + Math.floor(de1 / sOfSc); // [イメージ] -1 や 0 や 1
+        if (ctr == deg) {
           // MIDI INから入力された7つのノートのうち、ランダムパターンで選んだ度数の音のみノートオンする
-          noteNum = parseInt(key) + ptnOctArr[playPtnIdx][playIdx] * 12;
+          noteNum = parseInt(key) + octOfs * 12;
           midi.outputs[outputSelIdx].send([0x90, noteNum, notes[key]]);
           midi.outputs[outputSelIdx].send([0x80, noteNum, notes[key]], window.performance.now() + stepTimeMsec);
           return;
