@@ -1,0 +1,29 @@
+<!doctype html>
+<html ng-app="generatorApp">
+  <head>
+    <meta charset="UTF-8">
+    <script type='text/javascript' src="http://cat2151.github.io/Web-MIDI-API-play/check-midi-port-exists.js"></script>
+    <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+    <script type='text/javascript' src="app.js"></script>
+    <script type='text/javascript' src="services.js"></script>
+    <script type='text/javascript' src="controller.js"></script>
+  </head>
+  <body>
+    <div ng-controller="generatorController">
+
+      input: <select id="midi-input" ng-model="midiInput" ng-options="i.name for i in midi.inputs" ng-change="selectMidiInputs()"><option value="">選択してください</option></select><br><br>
+
+      output: <select id="midi-output" ng-model="midiOutput" ng-options="o.name for o in midi.outputs" ng-change="selectMidiOutputs()"><option value="">選択してください</option></select><br><br>
+
+      BPM: <input type="text" ng-model="p.bpm" ng-init="p.bpm=120"
+        ng-change="generate()" ng-blur="generate()"
+        placeholder="例: 120"
+      >
+
+      <div id="msg" style="margin:30px;"></div><br>
+
+      <a href="https://github.com/cat2151/Web-MIDI-API-play/">ソースファイル githubリポジトリ</a>
+
+    </div>
+  </body>
+</html>

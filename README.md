@@ -17,9 +17,10 @@ Web MIDI APIで小物を作って遊んでみる
 * [DEMO A-1 : 簡易ランダムアルペエータ](http://cat2151.github.io/Web-MIDI-API-play/randomArpeggiator01.html)  
  * [利用方法](http://qiita.com/cat2151/items/507bdb4d78e4ae369d02)
 
-* [DEMO M-1 : 簡易ランダムシーケンス生成器（開発中）](http://cat2151.github.io/Web-MIDI-API-play/monoSeqGen01.html)  
+* [DEMO M-1 : 簡易ランダムシーケンス生成器（開発中）](http://cat2151.github.io/Web-MIDI-API-play/monoSeqGen02/index.html)  
  * 利用方法 : ランダムアルペエータと同様。ただしDAWに演奏させるのは、「レミファソラシドの和音」など、スケールを7和音として弾いたもの
  * 制約 : 開発中のため、元フレーズは2つだけ固定で、ランダム法則も「16分音符1つ演奏するごとに、1/4の確率で2つのうちどちらかを選びなおす」だけです。
+ * [旧バージョン](http://cat2151.github.io/Web-MIDI-API-play/monoSeqGen01.html)
 
 # [注意]
 * [Chrome]  
