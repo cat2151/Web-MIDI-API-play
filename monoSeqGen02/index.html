@@ -18,9 +18,33 @@
       BPM: <input type="text" ng-model="p.bpm" ng-init="p.bpm=120"
         ng-change="generate()" ng-blur="generate()"
         placeholder="例: 120"
-      >
+      ><br>
 
-      <div id="msg" style="margin:30px;"></div><br>
+      パターン選択:
+      <input type="text" ng-model="p.fixMode" ng-init="p.fixMode=''">
+      (空欄でランダム、1以上でそのパターンに固定)<br>
+
+      パターン変更頻度:
+      <input type="text" ng-model="p.chgPtnFreq" ng-init="p.chgPtnFreq='4'">
+      (16分音符ごとに、1/{{p.chgPtnFreq}}の確率でパターン再選択します)<br>
+
+      音符:<br>
+      (度数I～VIIを0～6で表記)(1パターン32個を記述する。3パターン目以降も追加可能):<br>
+      <textarea cols="80" rows="4" ng-model="p.ptnDegStr" ng-init="initPtnDegStr()"
+        ng-change="changePtnDegStr()" ng-blur="changePtnDegStr()"
+        placeholder="空欄にすると音が出ません"
+      ></textarea><br>
+      休符: <textarea cols="80" rows="4" ng-model="p.ptnRestStr" ng-init="initPtnRestStr()"
+        ng-change="changePtnRestStr()" ng-blur="changePtnRestStr()"
+        placeholder="空欄にすると音が出ません"
+      ></textarea><br>
+      Oct: <textarea cols="80" rows="4" ng-model="p.ptnOctStr" ng-init="initPtnOctStr()"
+        ng-change="changePtnOctStr()" ng-blur="changePtnOctStr()"
+        placeholder="空欄にすると音が出ません"
+      ></textarea>
+
+      <div id="msg" style="margin:30px;"> </div><br>
+
 
       <a href="https://github.com/cat2151/Web-MIDI-API-play/">ソースファイル githubリポジトリ</a>
 

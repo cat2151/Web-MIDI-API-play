@@ -2,12 +2,12 @@ angular.module('generatorApp')
 .controller('generatorController', ['$scope', '$location', '$timeout', 'GeneratorService','WebMIDIApiService','Utils',
 function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils) {
 
-// [説明] 簡易ランダムシーケンス生成器。現在、ランダムといっても、固定2パターンをランダム切り替えしているのみ。
+// [説明] 簡易ランダムシーケンス生成器。入力したパターンをランダム切り替えしてシーケンスを生成する。
 // [用途] スケールにあわせたランダムシーケンスを生成したいときに利用。
 // [使用方法] DAWで、使っている曲のスケール（例：レミファソラシド）を和音で演奏し、
 //            ブラウザのMIDI INに入力する。なお、7和音のみ対応している。それ以外の動作は未定義。
 
-  $scope.p = {"bpm":120};
+  $scope.p = {"bpm":120, "fixMode":0, "chgPtnFreq":4};
   var midi = {"inputs":[], "outputs":[]};
   $scope.midi = midi; // 画面に公開
   var inputSelIdx = null;
@@ -70,28 +70,55 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
   }
 
   // 元シーケンス定義
-  var ptns = 2;
+  var ptns;
   var beats = 32;
-  var ptnDegArr = [
-      [0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4,
-       0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4],
-      [0, 0, 4, 4,  3, 3, 6, 6,  6, 2, 3, 3,  0, 0, 4, 4,
-       3, 3, 6, 6,  6, 2, 3, 4,  5, 4, 5, 6,  3, 2, 1, 1]
-    ]; // 度数
-  var ptnRestArr = [
-      [0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0,
-       0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0],
-      [0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,
-       0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1]
-    ]; // 休符
-  var ptnOctArr = [
-      [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0, 
-       0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],
-      [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0, 
-       0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0]
-    ];  // oct
+  var ptnDegArr;
+  var ptnRestArr;
+  var ptnOctArr;
+  $scope.p.ptnDegStr;
+  $scope.p.ptnRestStr;
+  $scope.p.ptnOctStr;
+  $scope.initPtnDegStr = function() {
+    $scope.p.ptnDegStr = "[\n" +
+      " [0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4,\n" +
+      "  0, 0, 4, 4,  3, 4, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4]\n,\n" +
+      " [0, 0, 4, 4,  3, 3, 6, 6,  6, 2, 3, 3,  0, 0, 4, 4,\n" +
+      "  3, 3, 6, 6,  6, 2, 3, 4,  5, 4, 5, 6,  3, 2, 1, 1]\n" +
+    "]";
+    $scope.changePtnDegStr();
+  }
+  $scope.initPtnRestStr = function() {
+    $scope.p.ptnRestStr = "[\n" +
+      " [0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0,\n" +
+      "  0, 1, 0, 1,  0, 0, 1, 0,  1, 0, 1, 0,  0, 0, 0, 0]\n,\n" +
+      " [0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,\n" +
+      "  0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1]\n" +
+    "]";
+    $scope.changePtnRestStr();
+  }
+  $scope.initPtnOctStr = function() {
+    $scope.p.ptnOctStr = "[\n" +
+      " [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
+      "  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0]\n,\n" +
+      " [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0,\n" +
+      "  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0]\n" +
+    "]";
+    $scope.changePtnOctStr();
+  }
+  $scope.changePtnDegStr = function() {
+    ptnDegArr = angular.fromJson($scope.p.ptnDegStr);
+    ptns = ptnDegArr.length;
+  }
+  $scope.changePtnRestStr = function() {
+    ptnRestArr = angular.fromJson($scope.p.ptnRestStr);
+    ptns = ptnRestArr.length;
+  }
+  $scope.changePtnOctStr = function() {
+    ptnOctArr = angular.fromJson($scope.p.ptnOctStr);
+    ptns = ptnOctArr.length;
+  }
   var playIdx = 0;
-  var playPtnIdx = 1;
+  var playPtnIdx = 0;
   // 非同期処理（interval）
   function evt_update() {
     if(parseInt(outputSelIdx) < 0) return;  // MIDI OUTが1つもない
@@ -100,7 +127,14 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     playIdx++;
     if (playIdx >= beats) playIdx = 0;
 
-    if (!Utils.getRandomInt(0, 3)) playPtnIdx = Utils.getRandomInt(0, 1); // 1/4の確率でパターン変更
+    if ($scope.p.fixMode) {
+      if ($scope.p.fixMode > 0 && $scope.p.fixMode <= ptns) playPtnIdx = $scope.p.fixMode - 1;
+      else playPtnIdx = 0;
+    } else {
+      var f = 4;   // デフォルト : 1/4の確率でパターン再選択
+      if ($scope.p.chgPtnFreq > 1) f = $scope.p.chgPtnFreq - 1;
+      if (!Utils.getRandomInt(0, f)) playPtnIdx = Utils.getRandomInt(0, ptns - 1);
+    }
 
     function play1() {
       if (ptnRestArr[playPtnIdx][playIdx]) return;  // 休符
