@@ -7,7 +7,7 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
 // [使用方法] DAWで、使っている曲のスケール（例：レミファソラシド）を和音で演奏し、
 //            ブラウザのMIDI INに入力する。なお、7和音のみ対応している。それ以外の動作は未定義。
 
-  $scope.p = {"bpm":120, "fixMode":0, "chgPtnFreq":4, "ptnStr":[]};
+  $scope.p = {"bpm":106, "fixMode":0, "chgPtnFreq":4, "ptnStr":[]};
   var midi = {"inputs":[], "outputs":[]};
   $scope.midi = midi; // 画面に公開
   var inputSelIdx = null;
@@ -74,21 +74,29 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
   var beats = 32;
   var ptnArr;
   $scope.initPtnStr = function() {
-    $scope.p.ptnStr = "[\n" +
-      "{\"deg\":[0, 0, 4, 4,  3, 3, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4,\n" +
-      "        0, 0, 4, 4,  3, 3, 4, 6,  6, 5, 5, 3,  4, 0, 3, 4],\n" +
-      "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
-      "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
-      "\"rest\":[0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 1, 0,  0, 0, 0, 0,\n" +
-      "        0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 1, 0,  0, 0, 0, 0],\"degSft\":0}\n" +
-      ",\n" +
-      "{\"deg\":[0, 0, 4, 4,  3, 3, 6, 6,  6, 2, 3, 3,  0, 0, 4, 4,\n" +
-      "        3, 3, 6, 6,  6, 2, 3, 4,  5, 4, 5, 6,  3, 2, 1, 1],\n" +
+    $scope.p.ptnStr =
+      "[\n" +
+      "{\"deg\":[0, 0, 7, 7,  5, 5,10,10, 10, 3, 5, 5,  0, 0, 7, 7,\n" +
+      "        5, 5,10,10, 10, 3, 5, 7,  8, 7, 8,10,  5, 3, 2, 2],\n" +
       "\"oct\": [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0,\n" +
       "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
       "\"rest\":[0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,\n" +
       "        0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1],\"degSft\":0}\n" +
-    "]";
+      ",\n" +
+      "{\"deg\":[0, 0, 5, 5,  7, 7,10,10,  0, 0, 5, 5,  7, 7, 0, 0,\n" +
+      "        0, 0, 5, 5,  7, 7, 2, 2,  0, 0, 5, 5,  7, 7, 0, 0],\n" +
+      "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 1, 1,\n" +
+      "        0, 0, 0, 0,  0, 0, 1, 1,  0, 0, 0, 0,  0, 0, 1, 1],\n" +
+      "\"rest\":[0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,\n" +
+      "        0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1],\"degSft\":0}\n" +
+      ",\n" +
+      "{\"deg\":[0, 0, 7, 7,  5, 5, 0, 0, 10,10, 8, 8,  7, 7, 5, 5,\n" +
+      "        0, 0, 7, 7,  5, 5, 0, 0, 10,10, 8, 8,  0, 0, 3, 3],\n" +
+      "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
+      "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
+      "\"rest\":[0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,\n" +
+      "        0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1],\"degSft\":0}\n" +
+      "\n]";
     $scope.changePtnStr();
   }
   $scope.changePtnStr = function() {
@@ -97,10 +105,14 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
   }
   var playIdx = 0;
   var playPtnIdx = 0;
-  var sOfSc = 7;  // size of scale
   // 非同期処理（interval）
   function evt_update() {
     if(parseInt(outputSelIdx) < 0) return;  // MIDI OUTが1つもない
+    var sOfSc = countSOfSc();  // size of scale
+    if (!sOfSc) { // 発音されていない
+      playIdx = 0;
+      return;
+    }
     // MIDIメッセージを送信
     play1();
     playIdx++;
@@ -133,6 +145,11 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
         ctr++;
       }
     }
+    function countSOfSc() {  // size of scale
+      var ctr = 0;
+      for (key in notes) ctr++;
+      return ctr;
+    }
   }
 
   var beatnote = 16; // 16分音符以外で使うことはなさそうなので$scope.pには入れない。$scope.pには画面と相互バインディングしたいものだけ入れる
@@ -147,6 +164,13 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     stepTimeMsec = calcStepTimeMsec(bpm, beatnote);
     // 割り込みを設定する
     setSeqInterval();
+  }
+
+  // 演奏位置初期化ボタンクリック時
+  $scope.resetIdx = function() {
+    alert(playIdx);
+    playIdx = 0;
+    alert(playIdx);
   }
 
   // 割り込みを設定する

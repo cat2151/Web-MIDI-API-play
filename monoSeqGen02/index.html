@@ -15,17 +15,17 @@
 
       output: <select id="midi-output" ng-model="midiOutput" ng-options="o.name for o in midi.outputs" ng-change="selectMidiOutputs()"><option value="">選択してください</option></select><br><br>
 
-      BPM: <input type="text" ng-model="p.bpm" ng-init="p.bpm=120"
+      BPM: <input type="text" ng-model="p.bpm"
         ng-change="generate()" ng-blur="generate()"
         placeholder="例: 120"
       ><br>
 
       パターン選択:
-      <input type="text" ng-model="p.fixMode" ng-init="p.fixMode=''">
+      <input type="text" ng-model="p.fixMode">
       (空欄でランダム、1以上でそのパターンに固定)<br>
 
       パターン変更頻度:
-      <input type="text" ng-model="p.chgPtnFreq" ng-init="p.chgPtnFreq='4'">
+      <input type="text" ng-model="p.chgPtnFreq">
       (16分音符ごとに、1/{{p.chgPtnFreq}}の確率でパターン再選択します)<br>
 
       音符:<br>
@@ -34,6 +34,8 @@
         ng-change="changePtnStr()" ng-blur="changePtnStr()"
         placeholder="空欄にすると音が出ません"
       ></textarea><br>
+
+      <button ng-click="resetIdx()">演奏位置初期化</button>
 
       <div id="msg" style="margin:30px;"> </div><br>
 
