@@ -7,6 +7,13 @@
     <script type='text/javascript' src="app.js"></script>
     <script type='text/javascript' src="services.js"></script>
     <script type='text/javascript' src="controller.js"></script>
+
+    <style type="text/css">
+    input.l3 {
+    width: 33px;
+    }
+    </style>
+
   </head>
   <body>
     <div ng-controller="generatorController">
@@ -15,18 +22,10 @@
 
       output: <select id="midi-output" ng-model="midiOutput" ng-options="o.name for o in midi.outputs" ng-change="selectMidiOutputs()"><option value="">選択してください</option></select><br><br>
 
-      BPM: <input type="text" ng-model="p.bpm"
+      BPM: <input type="text" class="l3" ng-model="p.bpm"
         ng-change="generate()" ng-blur="generate()"
         placeholder="例: 120"
       ><br>
-
-      パターン選択:
-      <input type="text" ng-model="p.fixMode">
-      (空欄でランダム、1以上でそのパターンに固定)<br>
-
-      パターン変更頻度:
-      <input type="text" ng-model="p.chgPtnFreq">
-      (16分音符ごとに、1/{{p.chgPtnFreq}}の確率でパターン再選択します)<br>
 
       音符:<br>
       (度数I～VIIを0～6で表記)(1パターン32個を記述する。3パターン目以降も追加可能):<br>
@@ -35,7 +34,31 @@
         placeholder="空欄にすると音が出ません"
       ></textarea><br>
 
-      <button ng-click="resetIdx()">演奏位置初期化</button>
+      パターン選択:
+      <input type="text" class="l3" ng-model="p.fixMode" ng-change="createPtnIndexes()">
+      (空欄でランダム生成、1以上でそのパターンに固定)<br>
+
+      パターン変更頻度:
+      <input type="text" class="l3" ng-model="p.chgPtnFreq" ng-change="createPtnIndexes()">
+      (16分音符ごとに、1/{{p.chgPtnFreq}}の確率でパターン再選択します)<br>
+
+      音符{{numOfDeg()}}個を1セットとして、
+      <input type="text" class="l3" ng-model="p.groupSetSize" ng-change="createPtnIndexes()">セットを生成、
+      1セットごとに<input type="text" class="l3" ng-model="p.timeOfRepeat" ng-change="createPtnIndexRep()">回繰り返し演奏
+      <br>
+
+      パターン選択のランダム生成結果:<br>
+      <textarea cols="80" rows="4" ng-model="p.ptnIndexesStr" ng-init="createPtnIndexes()"
+        ng-change="changePtnIndexesStr()"
+        placeholder="空欄にすると音が出ません"
+      ></textarea><br>
+
+      生成結果(繰り返しを含めた分):<br>
+      <textarea readonly cols="80" rows="4" ng-model="ptnIndexReStr"></textarea><br>
+
+      <button ng-click="createPtnIndexes()">再生成</button><br>
+
+      <button ng-click="resetIdx()">演奏位置初期化</button><br>
 
       <div id="msg" style="margin:30px;"> </div><br>
 
