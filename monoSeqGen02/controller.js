@@ -2,12 +2,23 @@ angular.module('generatorApp')
 .controller('generatorController', ['$scope', '$location', '$timeout', 'GeneratorService','WebMIDIApiService','Utils',
 function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils) {
 
-// [説明] 簡易ランダムシーケンス生成器。入力したパターンをランダム切り替えしてシーケンスを生成する。
-// [用途] スケールにあわせたランダムシーケンスを生成したいときに利用。
-// [使用方法] DAWで、使っている曲のスケール（例：レミファソラシド）を和音で演奏し、
-//            ブラウザのMIDI INに入力する。なお、7和音のみ対応している。それ以外の動作は未定義。
+// [説明] 簡易ランダムシーケンス生成器。画面入力したパターンをランダム切り替えしてシーケンスを生成し、
+//        MIDI INのノートオンをトリガとして演奏する。
+// [用途] ランダムシーケンスを生成したいときに利用。
+// [使用方法] DAWで、トラックを用意し、それをブラウザのMIDI INへ接続する。
+//            [クロマチックスケールモード]
+//               チェックボックスをonにすることで使用可能。デフォルト。
+//               主音を鳴らすだけで演奏できる。
+//            [スケール可変モード]
+//               チェックボックスをoffにすることで使用可能。
+//               [メリット] 曲中でドリアンスケールからエオリアンスケールに変更、といった場合、
+//                          スケールに沿ったシーケンスを生成できる。
+//               [利用法] DAWで演奏するのは、主音だけでなく、スケールの構成音全てとなる。
+//                        主音だけ演奏した場合は、音が鳴らない。
+//               [制約] 全てのパターンの"scale:"の音数が同じこと。7音音階と12音音階の混在はできない。
+//                      想定は、7音音階のパターンを複数登録しての利用。
 
-  $scope.p = {"bpm":106, "fixMode":0, "chgPtnFreq":4, "ptnStr":[], "timeOfRepeat":2, "groupSetSize":4};
+  $scope.p = {"bpm":106, "fixMode":0, "chgPtnFreq":4, "ptnStr":[], "timeOfRepeat":2, "groupSetSize":4, "sNOnMd":true};
   var midi = {"inputs":[], "outputs":[]};
   $scope.midi = midi; // 画面に公開
   var inputSelIdx = null;
@@ -49,23 +60,26 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     // note配列に追加と削除（ランダムシーケンス生成用のスケールとして利用）
     if (event.data[0] == 0x90) {
       if (event.data[2]) {
+        // ノートオン
         addNotes(event.data[1], event.data[2]);
       } else {
         delNotes(event.data[1]);
       }
-      startSeq();
     } else if (event.data[0] == 0x80) {
       delNotes(event.data[1]);
     }
     function addNotes(note, vel) {
       notes[note] = vel;
+      startSeq();
     }
     function delNotes(note) {
       delete notes[note];
     }
     function startSeq() {
       if (!is1stEvent) return;
-      if (countSOfSc() < 12) return;  // 全てのノートが揃うまでは反応しない TODO 12以外に対応。スケール増やしたとき。
+      if (!$scope.p.sNOnMd) { // MIDI INでスケールを選べるときは
+        if (countMidiInSOfSRaw() < numOfScale()) return;  // 全てのスケール用ノートが揃うまでは反応しない
+      }
       // 最初のMIDI IN入力の場合
       clearPlayIdxes();
       evt_update(); // 最初の１つを演奏
@@ -88,21 +102,24 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
   $scope.initPtnStr = function() {
     $scope.p.ptnStr =
       "[\n" +
-      "{\"deg\":[0, 0, 7, 7,  5, 5,10,10, 10, 3, 5, 5,  0, 0, 7, 7,\n" +
+      "{\"scale\":[0,1, 2,3, 4, 5,6, 7,8, 9,10, 11],\n" +
+      "\"deg\": [0, 0, 7, 7,  5, 5,10,10, 10, 3, 5, 5,  0, 0, 7, 7,\n" +
       "        5, 5,10,10, 10, 3, 5, 7,  8, 7, 8,10,  5, 3, 2, 2],\n" +
       "\"oct\": [1, 1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 0, 0,\n" +
       "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
       "\"rest\":[0, 1, 0, 1,  0, 1, 0, 0,  1, 0, 0, 1,  0, 1, 0, 1,\n" +
       "        0, 1, 0, 0,  1, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 1],\"degSft\":0}\n" +
       ",\n" +
-      "{\"deg\":[0, 0, 5, 5,  7, 7,10,10,  0, 0, 5, 5,  7, 7, 0, 0,\n" +
+      "{\"scale\":[0,1, 2,3, 4, 5,6, 7,8, 9,10, 11],\n" +
+      "\"deg\": [0, 0, 5, 5,  7, 7,10,10,  0, 0, 5, 5,  7, 7, 0, 0,\n" +
       "        0, 0, 5, 5,  7, 7, 2, 2,  0, 0, 5, 5,  7, 7, 0, 0],\n" +
       "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 1, 1,\n" +
       "        0, 0, 0, 0,  0, 0, 1, 1,  0, 0, 0, 0,  0, 0, 1, 1],\n" +
       "\"rest\":[0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,\n" +
       "        0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1,  0, 1, 0, 1],\"degSft\":0}\n" +
       ",\n" +
-      "{\"deg\":[0, 0, 7, 7,  5, 5, 0, 0, 10,10, 8, 8,  7, 7, 5, 5,\n" +
+      "{\"scale\":[0,1, 2,3, 4, 5,6, 7,8, 9,10, 11],\n" +
+      "\"deg\": [0, 0, 7, 7,  5, 5, 0, 0, 10,10, 8, 8,  7, 7, 5, 5,\n" +
       "        0, 0, 7, 7,  5, 5, 0, 0, 10,10, 8, 8,  0, 0, 3, 3],\n" +
       "\"oct\": [0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,\n" +
       "        0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0],\n" +
@@ -125,8 +142,9 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
       clearPlayIdxes();
       return; // テキストボックス編集中で、生成結果が空の時
     }
-    var sOfSc = countSOfSc();  // size of scale
-    if (!sOfSc) { // 発音されていないならとめる
+    var sOfSRaw = countMidiInSOfSRaw();  // size of scale
+    var sOfSc = calcSOfSc(sOfSRaw);
+    if (!sOfSRaw) { // 発音されていないならとめる
       clearInterval(m_hTimer);  // 次のノートオンにすぐ反応して鳴らせるよう、シーケンスをとめる
       is1stEvent = true;  // 次のノートオンにすぐ反応して鳴らせるよう、フラグを立てる
       return;
@@ -143,28 +161,47 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
 
     function play1() {
       if (ptnArr[playPtnIdx]['rest'][playIdx]) return;  // 休符
+      var de1 = ptnArr[playPtnIdx]['deg'][playIdx] + ptnArr[playPtnIdx]['degSft'];  // [イメージ] -1 や 0 や 1 や 7。degSftはdegreeShift
+      var deg = ((de1 % sOfSc) + sOfSc) % sOfSc;  // [イメージ] 0～6、クロマチックスケールなら0～11
+      // デフォルトスケールを使用する場合
+      if ($scope.p.sNOnMd) {
+        var firstNoteNum = get1stNoteNum();
+        var baseNoteNum = firstNoteNum + ptnArr[playPtnIdx]["scale"][deg];
+        var vel = notes[firstNoteNum];
+        sendNoteOn(baseNoteNum, vel);
+        return;
+      }
+      // スケールをMIDI INで指定する場合
+      // MIDI INから入力された複数ノートのうち、ランダムパターンで選んだ度数の音のみ、MIDI OUTにノートオン送信する
       var ctr = 0;
-      var noteNum;
-      for (key in notes) {
-        var de1 = ptnArr[playPtnIdx]['deg'][playIdx] + ptnArr[playPtnIdx]['degSft'];  // [イメージ] -1 や 0 や 1 や 7。degSftはdegreeShift
-        var deg = ((de1 % sOfSc) + sOfSc) % sOfSc;  // [イメージ] 0～6、クロマチックスケールなら0～11
-        var octOfs = ptnArr[playPtnIdx]['oct'][playIdx] + Math.floor(de1 / sOfSc); // [イメージ] -1 や 0 や 1
+      for (key in notes) { // [補足] このkeyは音楽的な意味でなく、JavaScript的な意味
         if (ctr == deg) {
-          // MIDI INから入力された7つのノートのうち、ランダムパターンで選んだ度数の音のみノートオンする
-          noteNum = parseInt(key) + octOfs * 12;
-          midi.outputs[outputSelIdx].send([0x90, noteNum, notes[key]]);
-          midi.outputs[outputSelIdx].send([0x80, noteNum, notes[key]], window.performance.now() + stepTimeMsec);
+          var baseNoteNum = key;
+          sendNoteOn(baseNoteNum, notes[key]);
           return;
         }
         ctr++;
       }
+      function sendNoteOn(baseNoteNum, vel) {
+        var octOfs = ptnArr[playPtnIdx]['oct'][playIdx] + Math.floor(de1 / sOfSc); // [イメージ] -1 や 0 や 1
+        var noteNum = parseInt(baseNoteNum) + octOfs * 12;
+        midi.outputs[outputSelIdx].send([0x90, noteNum, vel]);
+        midi.outputs[outputSelIdx].send([0x80, noteNum, vel], window.performance.now() + stepTimeMsec);
+      }
+    }
+    function calcSOfSc(sOfSRaw) { // size of scale
+      if ($scope.p.sNOnMd) return ptnArr[playPtnIdx]["scale"].length; // [補足] 16分音符ごとにパターンが変わるので、毎回取得が必要
+      return sOfSRaw;
     }
   }
-  // MIDI INで入力されたスケールのサイズを得る
-  function countSOfSc() {
+  // MIDI INで入力されたスケールのサイズを得る [イメージ] MIDI INから入力されたのが1音なら、1を得る
+  function countMidiInSOfSRaw() { // count size of scale
     var ctr = 0;
     for (key in notes) ctr++;
     return ctr;
+  }
+  function get1stNoteNum() {
+    for (key in notes) return parseInt(key);
   }
   function clearPlayIdxes() {
     playIdx = 0;
@@ -245,7 +282,16 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     if (!ptnArr.length) return 0;
     return ptnArr[0]["deg"].length;
   }
- 
+  // 画面入力されたパターンのスケールの音数 [イメージ] クロマチックスケールなら12
+  function numOfScale() {
+    if (!ptnArr.length) return 0;
+    return ptnArr[0]["scale"].length;
+  }
+
+  // 初期処理
+  $scope.initPtnStr();
+  $scope.createPtnIndexes();
+
   // 割り込みを設定する
   var m_hTimer;
   function setSeqInterval() {

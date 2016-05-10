@@ -29,7 +29,7 @@
 
       音符:<br>
       (度数I～VIIを0～6で表記)(1パターン32個を記述する。3パターン目以降も追加可能):<br>
-      <textarea cols="80" rows="20" ng-model="p.ptnStr" ng-init="initPtnStr()"
+      <textarea cols="80" rows="20" ng-model="p.ptnStr"
         ng-change="changePtnStr()" ng-blur="changePtnStr()"
         placeholder="空欄にすると音が出ません"
       ></textarea><br>
@@ -48,7 +48,7 @@
       <br>
 
       パターン選択のランダム生成結果:<br>
-      <textarea cols="80" rows="4" ng-model="p.ptnIndexesStr" ng-init="createPtnIndexes()"
+      <textarea cols="80" rows="4" ng-model="p.ptnIndexesStr"
         ng-change="changePtnIndexesStr()"
         placeholder="空欄にすると音が出ません"
       ></textarea><br>
@@ -59,6 +59,8 @@
       <button ng-click="createPtnIndexes()">再生成</button><br>
 
       <button ng-click="resetIdx()">演奏位置初期化</button><br>
+
+      <input type="checkbox" ng-model="p.sNOnMd">MIDI IN単音で鳴らす(スケール固定)</input>
 
       <div id="msg" style="margin:30px;"> </div><br>
 
