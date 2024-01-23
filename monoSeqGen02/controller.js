@@ -45,13 +45,13 @@ function($scope, $location, $timeout, GeneratorService, WebMIDIApiService, Utils
     if(parseInt(inputSelIdx) >= 0) {
       midi.inputs[inputSelIdx].onmidimessage = null;
     }
-    inputSelIdx = parseInt(($scope.midiInput.id).replace(/\D/g, "")); // oldを解除する為、$scopeとは別に保持
+    inputSelIdx = parseInt(($scope.midiInput.id).replace(/\D/g, "")) - 1; // oldを解除する為、$scopeとは別に保持
     // イベント登録
     midi.inputs[inputSelIdx].onmidimessage = eventOut;
   }
   // MIDI Outputデバイスのプルダウン選択時
   $scope.selectMidiOutputs = function() {
-    outputSelIdx = parseInt(($scope.midiOutput.id).replace(/\D/g, ""));
+    outputSelIdx = parseInt(($scope.midiOutput.id).replace(/\D/g, "")) - 1;
   }
 
   // 非同期処理（MIDI受信時）
